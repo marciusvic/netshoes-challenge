@@ -10,7 +10,10 @@ export default function Navigation() {
     .join(' / ');
   return (
     <div className="navigation">
-      <h1>Home{formattedPath ? ' / ' + formattedPath : ''}</h1>
+      <h1>
+        Home
+        <span>{formattedPath ? ' / ' + formattedPath : ''}</span>
+      </h1>
       <hr />
     </div>
   );

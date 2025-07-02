@@ -10,10 +10,10 @@ export default function NavBar() {
       <Image src="/logo.svg" alt="Netshoes Logo" className="nav-logo" width={160} height={25} />
       <div className="nav-end-container">
         <Link href="/wishlist" className="nav-end-container-whishlist">
-          <Heart size={24} />
+          <Heart size={24} color="#FFF" />
           Wishlist
         </Link>
-        <CircleUserRound size={24} />
+        <CircleUserRound size={24} color="#FFF" />
       </div>
     </nav>
   );

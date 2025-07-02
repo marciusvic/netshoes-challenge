@@ -23,7 +23,14 @@
     img {
       border-radius: 4px;
     }
-
+    .x-icon{
+      all: unset;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 26px;
+      height: 26px;
+    }
     .heart-icon {
       all: unset;
       position: absolute;

@@ -1,4 +1,5 @@
 'use client';
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useProductsService } from '@/services/products';
 import { ProductsData, Product } from '@/types/products';
@@ -6,8 +7,9 @@ import { ChildrenProps } from '@/types/types';
 
 interface ProductsContextType {
   products: Product[];
+  wishProducts: Product[];
   loading: boolean;
-  wishlist: string[]; // <== adiciona aqui
+  wishlist: string[];
   getAllProducts: () => Promise<Product[]>;
   getWishlist: () => Promise<Product[]>;
   editWishList: (productCode: string) => void;
@@ -16,6 +18,7 @@ interface ProductsContextType {
 
 export const ProductsContext = createContext<ProductsContextType>({
   products: [],
+  wishProducts: [],
   loading: false,
   wishlist: [],
   getAllProducts: async () => [],
@@ -27,28 +30,11 @@ export const ProductsContext = createContext<ProductsContextType>({
 export default function ProductsProvider({ children }: ChildrenProps) {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [wishProducts, setWishProducts] = useState<Product[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
-
-  const { getProducts } = useProductsService();
-
   const wishListKey = 'wishlist_codes';
 
-  // Carregar wishlist do localStorage uma vez
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(wishListKey);
-      if (stored) {
-        setWishlist(JSON.parse(stored));
-      }
-    }
-  }, []);
-
-  // Salvar wishlist no localStorage toda vez que mudar
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(wishListKey, JSON.stringify(wishlist));
-    }
-  }, [wishlist]);
+  const { getProducts } = useProductsService();
 
   async function getAllProducts(): Promise<Product[]> {
     setLoading(true);
@@ -79,6 +65,26 @@ export default function ProductsProvider({ children }: ChildrenProps) {
   }
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(wishListKey);
+      if (stored) {
+        setWishlist(JSON.parse(stored));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(wishListKey, JSON.stringify(wishlist));
+    }
+  }, [wishlist]);
+
+  useEffect(() => {
+    const updatedWishProducts = products.filter((product) => wishlist.includes(product.code));
+    setWishProducts(updatedWishProducts);
+  }, [wishlist, products]);
+
+  useEffect(() => {
     getAllProducts();
   }, []);
 
@@ -86,6 +92,7 @@ export default function ProductsProvider({ children }: ChildrenProps) {
     <ProductsContext.Provider
       value={{
         products,
+        wishProducts,
         loading,
         wishlist,
         getAllProducts,

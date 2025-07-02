@@ -1,25 +1,34 @@
 'use client';
 import { Product } from '@/types/products';
 import Image from 'next/image';
-import { Heart, Star } from 'lucide-react';
+import { Heart, Star, X } from 'lucide-react';
 import './style.scss';
 import { useProducts } from '@/context/products-context';
+import { usePathname } from 'next/navigation';
 
 export function ItemCard({ product }: { product: Product }) {
   const { verifyWishlist, editWishList } = useProducts();
   const isInWishlist = verifyWishlist(product.code);
-
+  const pathname = usePathname();
+  const pathParts = pathname.split('/').filter(Boolean);
+  const isWishlistPage = pathParts.includes('wishlist');
   return (
     <div className="item-card">
       <div className="image-container">
         <Image src={product.image} alt={product.details.description} width={200} height={200} />
-        <button
-          type="button"
-          className={`heart-icon ${isInWishlist ? 'active' : ''}`}
-          onClick={() => editWishList(product.code)}
-        >
-          <Heart size={18} color={isInWishlist ? 'white' : '#888'} />
-        </button>
+        {isWishlistPage ? (
+          <button type="button" className="x-icon" onClick={() => editWishList(product.code)}>
+            <X size={20} color="#000" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={`heart-icon ${isInWishlist ? 'active' : ''}`}
+            onClick={() => editWishList(product.code)}
+          >
+            <Heart size={18} color={isInWishlist ? 'white' : '#888'} />
+          </button>
+        )}
       </div>
       <h2>{product.details.description}</h2>
 
