@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from 'react';
+'use client';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useProductsService } from '@/services/products';
 import { ProductsData, Product } from '@/types/products';
 import { ChildrenProps } from '@/types/types';
@@ -6,37 +7,48 @@ import { ChildrenProps } from '@/types/types';
 interface ProductsContextType {
   products: Product[];
   loading: boolean;
+  wishlist: string[]; // <== adiciona aqui
   getAllProducts: () => Promise<Product[]>;
   getWishlist: () => Promise<Product[]>;
-  editWishList: (productCode: string) => Promise<void>;
+  editWishList: (productCode: string) => void;
+  verifyWishlist: (productCode: string) => boolean;
 }
 
 export const ProductsContext = createContext<ProductsContextType>({
   products: [],
   loading: false,
+  wishlist: [],
   getAllProducts: async () => [],
   getWishlist: async () => [],
-  editWishList: async () => {},
+  editWishList: () => {},
+  verifyWishlist: () => false,
 });
 
 export default function ProductsProvider({ children }: ChildrenProps) {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
   const { getProducts } = useProductsService();
 
   const wishListKey = 'wishlist_codes';
 
-  function getWishlistCodes(): string[] {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem(wishListKey);
-    return stored ? JSON.parse(stored) : [];
-  }
+  // Carregar wishlist do localStorage uma vez
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(wishListKey);
+      if (stored) {
+        setWishlist(JSON.parse(stored));
+      }
+    }
+  }, []);
 
-  function setWishlistCodes(codes: string[]) {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(wishListKey, JSON.stringify(codes));
-  }
+  // Salvar wishlist no localStorage toda vez que mudar
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(wishListKey, JSON.stringify(wishlist));
+    }
+  }, [wishlist]);
 
   async function getAllProducts(): Promise<Product[]> {
     setLoading(true);
@@ -54,30 +66,32 @@ export default function ProductsProvider({ children }: ChildrenProps) {
   }
 
   async function getWishlist(): Promise<Product[]> {
-    const codes = getWishlistCodes();
     const allProducts = products.length ? products : await getAllProducts();
-    return allProducts.filter((p) => codes.includes(p.code));
+    return allProducts.filter((p) => wishlist.includes(p.code));
   }
 
-  async function editWishList(productCode: string): Promise<void> {
-    const codes = getWishlistCodes();
-    const index = codes.indexOf(productCode);
-    if (index > -1) {
-      codes.splice(index, 1);
-    } else {
-      codes.push(productCode);
-    }
-    setWishlistCodes(codes);
+  function editWishList(code: string): void {
+    setWishlist((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
   }
+
+  function verifyWishlist(code: string): boolean {
+    return wishlist.includes(code);
+  }
+
+  useEffect(() => {
+    getAllProducts();
+  }, []);
 
   return (
     <ProductsContext.Provider
       value={{
         products,
         loading,
+        wishlist,
         getAllProducts,
         getWishlist,
         editWishList,
+        verifyWishlist,
       }}
     >
       {children}
@@ -85,9 +99,10 @@ export default function ProductsProvider({ children }: ChildrenProps) {
   );
 }
 
-export function useProductsContext() {
+export function useProducts() {
   const context = useContext(ProductsContext);
   if (!context) {
     throw new Error('useProductsContext must be used within a ProductsProvider');
   }
+  return context;
 }
