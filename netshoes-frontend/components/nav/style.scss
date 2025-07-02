@@ -1,0 +1,33 @@
+@import '../../styles/settings.module.scss';
+
+.nav-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 1rem;
+  padding-left: 40px;
+  padding-right: 40px;
+  background: $primary-color;
+}
+
+.nav-end-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  @media (min-width: 640px) {
+    width: 50px;
+  }
+  @media (min-width: 768px) {
+    width: 50px;
+  }
+  @media (min-width: 1280px) {
+    width: 80px;
+  }
+}
+
+.nav-end-container-whishlist {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
