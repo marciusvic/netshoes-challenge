@@ -3,7 +3,7 @@ import { Heart } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import './style.scss';
-import UserDropdown from '../dropdown-menu/dropdownmenu';
+import UserDropdown from '../dropdown-menu/dropdown-menu';
 
 export default function NavBar() {
   return (
