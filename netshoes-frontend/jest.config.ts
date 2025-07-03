@@ -15,7 +15,7 @@ const config: Config = {
   transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
   globals: {
     'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.json',
+      tsconfig: 'tsconfig.test.json',
     },
   },
 };
