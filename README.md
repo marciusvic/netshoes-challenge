@@ -19,7 +19,7 @@
 ## Tecnologias utilizadas
 
 - TypeScript
-- NextJS
+- NextJS (só foram usados <Image>, <Link> e App Router)
 - SCSS
 - Jest
 - React Testing Library
